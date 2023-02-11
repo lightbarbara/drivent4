@@ -6,11 +6,11 @@ import httpStatus from "http-status";
 export async function createBooking(req: AuthenticatedRequest, res: Response) {
   const { userId } = req;
   const roomId = req.body.roomId;
-  
-  try {
-    await bookingService.postBooking(parseInt(roomId), userId);
 
-    return res.sendStatus(httpStatus.OK);
+  try {
+    const booking = await bookingService.postBooking(parseInt(roomId), userId);
+
+    return res.status(httpStatus.OK).send({ bookingId: booking.id });
   } catch (e) {
     if (e.name === "Forbidden") {
       return res.sendStatus(httpStatus.FORBIDDEN);
@@ -18,7 +18,7 @@ export async function createBooking(req: AuthenticatedRequest, res: Response) {
     if (e.name === "NotFoundError") {
       return res.sendStatus(httpStatus.NOT_FOUND);
     }
-    return res.sendStatus(httpStatus.FORBIDDEN);
+    return res.sendStatus(httpStatus.BAD_REQUEST);
   }
 }
 
@@ -45,7 +45,7 @@ export async function updateBooking(req: AuthenticatedRequest, res: Response) {
   try {
     await bookingService.updateBooking(parseInt(roomId), userId, parseInt(bookingId));
 
-    return res.status(httpStatus.OK).send({ bookingId });
+    return res.status(httpStatus.OK).send({ bookingId: parseInt(bookingId) });
   } catch (e) {
     if (e.name === "Forbidden") {
       return res.sendStatus(httpStatus.FORBIDDEN);

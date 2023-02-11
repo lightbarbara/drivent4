@@ -30,7 +30,9 @@ async function validateBooking(roomId: number, userId: number) {
 async function postBooking(roomId: number, userId: number) {
   await validateBooking(roomId, userId);
 
-  await bookingRepository.postBooking(roomId, userId);
+  const booking = await bookingRepository.postBooking(roomId, userId);
+
+  return booking;
 }
 
 async function getBooking(userId: number) {
@@ -39,6 +41,8 @@ async function getBooking(userId: number) {
   if (!userHasBooking) {
     throw notFoundError();
   }
+
+  return userHasBooking;
 }
 
 async function getBookingOnUpdate(userId: number) {
@@ -49,8 +53,20 @@ async function getBookingOnUpdate(userId: number) {
   }
 }
 
+async function validateBookingOnUpdate(roomId: number) {
+  const roomExistsAndIsEmpty = await bookingRepository.findRoomById(roomId);
+
+  if (!roomExistsAndIsEmpty) {
+    throw notFoundError();
+  }
+
+  if (roomExistsAndIsEmpty.capacity === roomExistsAndIsEmpty.Booking.length) {
+    throw forbidden();
+  }
+}
+
 async function updateBooking(roomId: number, userId: number, bookingId: number) {
-  await validateBooking(roomId, userId);
+  await validateBookingOnUpdate(roomId);
 
   await getBookingOnUpdate(userId);
 
