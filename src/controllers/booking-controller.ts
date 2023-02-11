@@ -9,6 +9,8 @@ export async function createBooking(req: AuthenticatedRequest, res: Response) {
   
   try {
     await bookingService.postBooking(parseInt(roomId), userId);
+
+    return res.sendStatus(httpStatus.OK);
   } catch (e) {
     if (e.name === "Forbidden") {
       return res.sendStatus(httpStatus.FORBIDDEN);
